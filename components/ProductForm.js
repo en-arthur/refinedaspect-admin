@@ -40,21 +40,31 @@ export default function ProductForm({ initial, productId }) {
     colors: [], color_hex: [], description: "", care: [],
     sizes: [], sold_out: [], images: [], category: "", featured: false,
   });
-  const [uploading, setUploading] = useState(false);
+  const [uploading, setUploading] = useState(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   function set(key, val) { setForm(f => ({ ...f, [key]: val })); }
 
-  async function handleImageUpload(e) {
+  async function handleImageUpload(e, slot) {
     const file = e.target.files[0];
     if (!file) return;
-    setUploading(true);
+    setUploading(slot);
     try {
       const { url } = await api.uploadImage(file);
-      set("images", [...form.images, url]);
+      const newImages = [...(form.images || []), "", ""].slice(0, 2);
+      newImages[slot] = url;
+      // preserve existing image in the other slot
+      if (slot === 0 && form.images?.[1]) newImages[1] = form.images[1];
+      if (slot === 1 && form.images?.[0]) newImages[0] = form.images[0];
+      set("images", newImages.filter((_, i) => i <= slot || newImages[i]));
+      // rebuild cleanly
+      const imgs = ["", ""];
+      if (slot === 0) { imgs[0] = url; imgs[1] = form.images?.[1] || ""; }
+      if (slot === 1) { imgs[0] = form.images?.[0] || ""; imgs[1] = url; }
+      set("images", imgs.filter(Boolean));
     } catch { setError("Image upload failed"); }
-    finally { setUploading(false); }
+    finally { setUploading(null); }
   }
 
   async function handleSubmit(e) {
@@ -144,21 +154,37 @@ export default function ProductForm({ initial, productId }) {
 
       <div className="mb-4">
         <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>Images</label>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {form.images.map((img, i) => (
-            <div key={i} className="relative">
-              <img src={img} alt="" className="w-20 h-20 object-cover" style={{ border: "1px solid var(--border)" }} />
-              <button type="button" onClick={() => set("images", form.images.filter((_, j) => j !== i))}
-                className="absolute top-0 right-0 w-5 h-5 text-xs flex items-center justify-center"
-                style={{ background: "var(--danger)", color: "#fff" }}>×</button>
+        <div className="grid grid-cols-2 gap-4">
+          {[{ label: "Front Image", slot: 0 }, { label: "Back Image", slot: 1 }].map(({ label, slot }) => (
+            <div key={slot}>
+              <p className="text-xs mb-2" style={{ color: "var(--text-secondary)" }}>{label}</p>
+              <div className="relative aspect-[3/4] flex items-center justify-center overflow-hidden"
+                style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
+                {form.images?.[slot] ? (
+                  <>
+                    <img src={form.images[slot]} alt={label} className="w-full h-full object-cover" />
+                    <button type="button"
+                      onClick={() => {
+                        const imgs = [...(form.images || [])];
+                        imgs[slot] = "";
+                        set("images", imgs.filter(Boolean));
+                      }}
+                      className="absolute top-1 right-1 w-5 h-5 text-xs flex items-center justify-center"
+                      style={{ background: "var(--danger)", color: "#fff" }}>×</button>
+                  </>
+                ) : (
+                  <label className="flex flex-col items-center gap-2 cursor-pointer p-4 text-center">
+                    <span className="text-xs" style={{ color: "var(--text-muted)" }}>
+                      {uploading === slot ? "Uploading..." : `Upload ${label}`}
+                    </span>
+                    <input type="file" accept="image/*" className="hidden"
+                      onChange={e => handleImageUpload(e, slot)} disabled={uploading !== null} />
+                  </label>
+                )}
+              </div>
             </div>
           ))}
         </div>
-        <label className="inline-block px-4 py-2 text-xs cursor-pointer"
-          style={{ background: "var(--surface-2)", border: "1px solid var(--border)", color: "var(--text)" }}>
-          {uploading ? "Uploading..." : "Upload Image"}
-          <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={uploading} />
-        </label>
       </div>
 
       <div className="mb-6 flex items-center gap-2">
