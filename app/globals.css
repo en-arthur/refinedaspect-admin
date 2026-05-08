@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+  --bg: #0f0f0f;
+  --surface: #1a1a1a;
+  --surface-2: #242424;
+  --border: rgba(255,255,255,0.08);
+  --border-mid: rgba(255,255,255,0.15);
+  --text: #f0ede8;
+  --text-muted: #6b6b6b;
+  --text-secondary: #9a9a9a;
+  --dune: #C8A96E;
+  --danger: #e05252;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
