@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import Skeleton from "@/components/Skeleton";
+
+const ROWS = Array(6).fill(null);
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
@@ -43,9 +46,16 @@ export default function ProductsPage() {
             </tr>
           </thead>
           <tbody>
-            {loading && (
-              <tr><td colSpan={6} className="px-6 py-8 text-center" style={{ color: "var(--text-muted)" }}>Loading...</td></tr>
-            )}
+            {loading && ROWS.map((_, i) => (
+              <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                <td className="px-6 py-4"><Skeleton w="140px" /></td>
+                <td className="px-6 py-4"><Skeleton w="100px" /></td>
+                <td className="px-6 py-4"><Skeleton w="60px" /></td>
+                <td className="px-6 py-4"><Skeleton w="50px" /></td>
+                <td className="px-6 py-4"><Skeleton w="20px" /></td>
+                <td className="px-6 py-4"><Skeleton w="50px" /></td>
+              </tr>
+            ))}
             {!loading && products.map(p => (
               <tr key={p.id} style={{ borderBottom: "1px solid var(--border)" }}>
                 <td className="px-6 py-3 font-medium">{p.name}</td>

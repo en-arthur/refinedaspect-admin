@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
+import Skeleton from "@/components/Skeleton";
+
+const ROWS = Array(6).fill(null);
 
 const STATUSES = ["", "pending", "processing", "shipped", "delivered", "cancelled"];
 
@@ -95,7 +98,19 @@ export default function OrdersPage() {
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={9} className="px-6 py-8 text-center" style={{ color: "var(--text-muted)" }}>Loading...</td></tr>}
+            {loading && ROWS.map((_, i) => (
+              <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                <td className="px-4 py-4"><Skeleton w="16px" h="16px" /></td>
+                <td className="px-4 py-4"><Skeleton w="110px" /></td>
+                <td className="px-4 py-4"><Skeleton w="140px" /></td>
+                <td className="px-4 py-4"><Skeleton w="20px" /></td>
+                <td className="px-4 py-4"><Skeleton w="70px" /></td>
+                <td className="px-4 py-4"><Skeleton w="70px" /></td>
+                <td className="px-4 py-4"><Skeleton w="60px" /></td>
+                <td className="px-4 py-4"><Skeleton w="80px" /></td>
+                <td className="px-4 py-4"><Skeleton w="30px" /></td>
+              </tr>
+            ))}
             {!loading && orders.map(o => (
               <tr key={o.id} style={{
                 borderBottom: "1px solid var(--border)",

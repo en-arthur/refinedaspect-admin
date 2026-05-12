@@ -1,6 +1,9 @@
 "use client";
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import Skeleton from "@/components/Skeleton";
+
+const ROWS = Array(9).fill(null);
 
 export default function InventoryPage() {
   const [inventory, setInventory] = useState([]);
@@ -40,7 +43,15 @@ export default function InventoryPage() {
             </tr>
           </thead>
           <tbody>
-            {loading && <tr><td colSpan={5} className="px-6 py-8 text-center" style={{ color: "var(--text-muted)" }}>Loading...</td></tr>}
+            {loading && ROWS.map((_, i) => (
+              <tr key={i} style={{ borderBottom: "1px solid var(--border)" }}>
+                <td className="px-6 py-4"><Skeleton w="120px" /></td>
+                <td className="px-6 py-4"><Skeleton w="30px" /></td>
+                <td className="px-6 py-4"><Skeleton w="80px" /></td>
+                <td className="px-6 py-4"><Skeleton w="60px" /></td>
+                <td className="px-6 py-4"><Skeleton w="40px" /></td>
+              </tr>
+            ))}
             {!loading && inventory.map(item => (
               <tr key={item.id} style={{ borderBottom: "1px solid var(--border)" }}>
                 <td className="px-6 py-3">{getProductName(item.product_id)}</td>

@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import Sidebar from "@/components/Sidebar";
+import TopLoadingBar from "@/components/TopLoadingBar";
 
 function DashboardShell({ children }) {
   const { isAuthed, loading } = useAuth();
@@ -16,6 +17,7 @@ function DashboardShell({ children }) {
 
   return (
     <div className="flex min-h-screen">
+      <TopLoadingBar />
       <Sidebar />
       <main className="flex-1 p-8" style={{ background: "var(--bg)" }}>
         {children}
