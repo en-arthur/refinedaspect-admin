@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { api, apiRequest } from "@/lib/api";
+import { api } from "@/lib/api";
 import Link from "next/link";
 import { Download } from "lucide-react";
 import Skeleton from "@/components/Skeleton";
@@ -27,7 +27,7 @@ export default function CustomersPage() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    apiRequest("/api/customers").then(setCustomers).finally(() => setLoading(false));
+    api.getCustomers().then(setCustomers).finally(() => setLoading(false));
   }, []);
 
   const filtered = customers.filter(c =>
