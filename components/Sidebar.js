@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Package, ShoppingBag, Boxes, LogOut } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, Boxes, Users, LogOut } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 const links = [
@@ -9,6 +9,7 @@ const links = [
   { href: "/dashboard/products", label: "Products", icon: Package },
   { href: "/dashboard/orders", label: "Orders", icon: ShoppingBag },
   { href: "/dashboard/inventory", label: "Inventory", icon: Boxes },
+  { href: "/dashboard/customers", label: "Customers", icon: Users },
 ];
 
 export default function Sidebar() {
