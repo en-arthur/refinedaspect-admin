@@ -40,7 +40,7 @@ export default function ProductsPage() {
         <table className="w-full text-sm">
           <thead>
             <tr style={{ borderBottom: "1px solid var(--border)" }}>
-              {["Name", "Collection", "Price (GHS)", "Category", "Featured", ""].map(h => (
+              {["Name", "Collection", "Price (GHS)", "Category", "Resolution", "In Stock", "Featured", ""].map(h => (
                 <th key={h} className="px-6 py-3 text-left text-xs tracking-widest uppercase" style={{ color: "var(--text-muted)" }}>{h}</th>
               ))}
             </tr>
@@ -51,7 +51,9 @@ export default function ProductsPage() {
                 <td className="px-6 py-4"><Skeleton w="140px" /></td>
                 <td className="px-6 py-4"><Skeleton w="100px" /></td>
                 <td className="px-6 py-4"><Skeleton w="60px" /></td>
+                <td className="px-6 py-4"><Skeleton w="70px" /></td>
                 <td className="px-6 py-4"><Skeleton w="50px" /></td>
+                <td className="px-6 py-4"><Skeleton w="20px" /></td>
                 <td className="px-6 py-4"><Skeleton w="20px" /></td>
                 <td className="px-6 py-4"><Skeleton w="50px" /></td>
               </tr>
@@ -62,6 +64,8 @@ export default function ProductsPage() {
                 <td className="px-6 py-3" style={{ color: "var(--text-secondary)" }}>{p.collection}</td>
                 <td className="px-6 py-3">GHS {p.price_ghs}</td>
                 <td className="px-6 py-3" style={{ color: "var(--text-secondary)" }}>{p.category}</td>
+                <td className="px-6 py-3" style={{ color: "var(--text-secondary)" }}>{p.resolution || "—"}</td>
+                <td className="px-6 py-3">{p.in_stock !== false ? "✓" : "✗"}</td>
                 <td className="px-6 py-3">{p.featured ? "✓" : "—"}</td>
                 <td className="px-6 py-3">
                   <div className="flex gap-3 justify-end">
@@ -72,7 +76,7 @@ export default function ProductsPage() {
               </tr>
             ))}
             {!loading && products.length === 0 && (
-              <tr><td colSpan={6} className="px-6 py-8 text-center" style={{ color: "var(--text-muted)" }}>No products</td></tr>
+              <tr><td colSpan={8} className="px-6 py-8 text-center" style={{ color: "var(--text-muted)" }}>No products</td></tr>
             )}
           </tbody>
         </table>

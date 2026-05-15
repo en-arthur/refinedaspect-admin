@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL"];
+const CATEGORIES = ["Indoor", "Outdoor", "Business", "Kit"];
 
 function TagInput({ label, value, onChange }) {
   const [input, setInput] = useState("");
@@ -37,8 +37,9 @@ export default function ProductForm({ initial, productId }) {
   const router = useRouter();
   const [form, setForm] = useState(initial || {
     slug: "", name: "", price_ghs: "", price_usd: "", collection: "",
-    colors: [], color_hex: [], description: "", care: [],
-    sizes: [], sold_out: [], images: [], category: "", featured: false,
+    resolution: "", connectivity: "", features: [],
+    description: "", specs: [],
+    images: [], category: "", featured: false, in_stock: true,
   });
   const [uploading, setUploading] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -52,16 +53,9 @@ export default function ProductForm({ initial, productId }) {
     setUploading(slot);
     try {
       const { url } = await api.uploadImage(file);
-      const newImages = [...(form.images || []), "", ""].slice(0, 2);
-      newImages[slot] = url;
-      // preserve existing image in the other slot
-      if (slot === 0 && form.images?.[1]) newImages[1] = form.images[1];
-      if (slot === 1 && form.images?.[0]) newImages[0] = form.images[0];
-      set("images", newImages.filter((_, i) => i <= slot || newImages[i]));
-      // rebuild cleanly
-      const imgs = ["", ""];
-      if (slot === 0) { imgs[0] = url; imgs[1] = form.images?.[1] || ""; }
-      if (slot === 1) { imgs[0] = form.images?.[0] || ""; imgs[1] = url; }
+      const imgs = [...(form.images || []), ""].slice(0, 2);
+      if (slot === 0) { imgs[0] = url; if (form.images?.[1]) imgs[1] = form.images[1]; }
+      if (slot === 1) { imgs[1] = url; if (form.images?.[0]) imgs[0] = form.images[0]; }
       set("images", imgs.filter(Boolean));
     } catch { setError("Image upload failed"); }
     finally { setUploading(null); }
@@ -102,8 +96,27 @@ export default function ProductForm({ initial, productId }) {
         {field("Slug", "slug")}
         {field("Price (GHS)", "price_ghs", "number")}
         {field("Price (USD)", "price_usd", "number")}
-        {field("Collection", "collection")}
-        {field("Category", "category")}
+        {field("Collection / Series", "collection")}
+        {field("Resolution (e.g. 1080p, 4K)", "resolution")}
+        {field("Connectivity (e.g. Wi-Fi, PoE)", "connectivity")}
+      </div>
+
+      {/* Category */}
+      <div className="mb-4">
+        <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>Category</label>
+        <div className="flex gap-2 flex-wrap">
+          {CATEGORIES.map(c => (
+            <button key={c} type="button"
+              onClick={() => set("category", c)}
+              className="px-3 py-1 text-xs"
+              style={{
+                border: "1px solid var(--border)",
+                background: form.category === c ? "var(--dune)" : "var(--surface-2)",
+                color: form.category === c ? "#0f0f0f" : "var(--text)"
+              }}
+            >{c}</button>
+          ))}
+        </div>
       </div>
 
       <div className="mb-4">
@@ -114,51 +127,17 @@ export default function ProductForm({ initial, productId }) {
         />
       </div>
 
-      <TagInput label="Colors" value={form.colors} onChange={v => set("colors", v)} />
-      <TagInput label="Color Hex" value={form.color_hex} onChange={v => set("color_hex", v)} />
-      <TagInput label="Care Instructions" value={form.care} onChange={v => set("care", v)} />
+      <TagInput label="Key Features" value={form.features} onChange={v => set("features", v)} />
+      <TagInput label="Technical Specs" value={form.specs} onChange={v => set("specs", v)} />
 
-      <div className="mb-4">
-        <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>Sizes</label>
-        <div className="flex gap-2 flex-wrap">
-          {SIZES.map(s => (
-            <button key={s} type="button"
-              onClick={() => set("sizes", form.sizes.includes(s) ? form.sizes.filter(x => x !== s) : [...form.sizes, s])}
-              className="px-3 py-1 text-xs"
-              style={{
-                border: "1px solid var(--border)",
-                background: form.sizes.includes(s) ? "var(--dune)" : "var(--surface-2)",
-                color: form.sizes.includes(s) ? "#0f0f0f" : "var(--text)"
-              }}
-            >{s}</button>
-          ))}
-        </div>
-      </div>
-
-      <div className="mb-4">
-        <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>Sold Out Sizes</label>
-        <div className="flex gap-2 flex-wrap">
-          {form.sizes.map(s => (
-            <button key={s} type="button"
-              onClick={() => set("sold_out", form.sold_out.includes(s) ? form.sold_out.filter(x => x !== s) : [...form.sold_out, s])}
-              className="px-3 py-1 text-xs"
-              style={{
-                border: "1px solid var(--border)",
-                background: form.sold_out.includes(s) ? "var(--danger)" : "var(--surface-2)",
-                color: form.sold_out.includes(s) ? "#fff" : "var(--text)"
-              }}
-            >{s}</button>
-          ))}
-        </div>
-      </div>
-
+      {/* Images */}
       <div className="mb-4">
         <label className="block text-xs mb-2" style={{ color: "var(--text-muted)" }}>Images</label>
         <div className="grid grid-cols-2 gap-4">
-          {[{ label: "Front Image", slot: 0 }, { label: "Back Image", slot: 1 }].map(({ label, slot }) => (
+          {[{ label: "Main Image", slot: 0 }, { label: "Secondary Image", slot: 1 }].map(({ label, slot }) => (
             <div key={slot}>
               <p className="text-xs mb-2" style={{ color: "var(--text-secondary)" }}>{label}</p>
-              <div className="relative aspect-[3/4] flex items-center justify-center overflow-hidden"
+              <div className="relative aspect-square flex items-center justify-center overflow-hidden"
                 style={{ background: "var(--surface-2)", border: "1px solid var(--border)" }}>
                 {form.images?.[slot] ? (
                   <>
@@ -187,9 +166,15 @@ export default function ProductForm({ initial, productId }) {
         </div>
       </div>
 
-      <div className="mb-6 flex items-center gap-2">
-        <input type="checkbox" id="featured" checked={form.featured} onChange={e => set("featured", e.target.checked)} />
-        <label htmlFor="featured" className="text-sm">Featured</label>
+      <div className="mb-4 flex items-center gap-6">
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" checked={form.featured} onChange={e => set("featured", e.target.checked)} />
+          Featured
+        </label>
+        <label className="flex items-center gap-2 text-sm cursor-pointer">
+          <input type="checkbox" checked={form.in_stock} onChange={e => set("in_stock", e.target.checked)} />
+          In Stock
+        </label>
       </div>
 
       <div className="flex gap-3">

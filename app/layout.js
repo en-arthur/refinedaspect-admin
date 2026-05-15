@@ -1,6 +1,6 @@
 import "./globals.css";
 
-export const metadata = { title: "RefinedAspect Admin" };
+export const metadata = { title: "Refined Aspect Admin — Surveillance" };
 
 export default function RootLayout({ children }) {
   return (
